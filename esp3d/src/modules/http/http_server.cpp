@@ -70,6 +70,9 @@ void HTTP_Server::init_handlers() {
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
   // MKS_SERIAL
   _webserver->on("/upload", HTTP_ANY, handleMKSUpload, MKSFileupload);
+#else
+  // RAW_SERIAL
+  _webserver->on("/upload", HTTP_ANY, handleM28Upload, M28Fileupload);
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
 #ifdef SD_DEVICE
   // SD

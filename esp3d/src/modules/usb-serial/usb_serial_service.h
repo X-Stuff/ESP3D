@@ -61,6 +61,8 @@ class ESP3DUsbSerialService final {
   const char * getPIDString();
   uint16_t getVID();
   uint16_t getPID();
+  void mute(bool is_muted) { _is_muted = is_muted; }
+  int available() { return min(_recv_size, _recv_buffer_write - _recv_buffer_read); }
 
  private:
   uint32_t _baudRate;
@@ -82,6 +84,12 @@ class ESP3DUsbSerialService final {
   void flushBuffer();
   void flushChar(char c);
   void flushData(const uint8_t* data, size_t size, ESP3DMessageType type);
+
+  constexpr static size_t _recv_size = sizeof(_buffer);
+  uint8_t _recv_buffer[_recv_size];
+  size_t _recv_buffer_write;
+  size_t _recv_buffer_read;
+  bool _is_muted;
 };
 
 extern ESP3DUsbSerialService esp3d_usb_serial_service;

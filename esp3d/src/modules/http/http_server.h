@@ -94,6 +94,9 @@ class HTTP_Server {
 #if COMMUNICATION_PROTOCOL == MKS_SERIAL
   static void MKSFileupload();
   static void handleMKSUpload();
+#else
+  static void M28Fileupload();
+  static void handleM28Upload();
 #endif  // COMMUNICATION_PROTOCOL == MKS_SERIAL
 };
 

@@ -77,6 +77,8 @@ ESP3DUsbSerialService::ESP3DUsbSerialService() {
   _messagesInFIFO.setId("in");
   _messagesInFIFO.setMaxSize(0);  // no limit
   _baudRate = 0;
+  _recv_buffer_read = 0;
+  _recv_buffer_write = 0;
 }
 
 // Destructor
@@ -152,28 +154,33 @@ void ESP3DUsbSerialService::setConnected(bool connected) {
 #if defined(NOTIFICATION_FEATURE)
     notificationsservice.sendAutoNotification("USB Connected");
 #endif  // NOTIFICATION_FEATURE
-    if (xSemaphoreTake(_device_disconnected_mutex, portMAX_DELAY) != pdTRUE) {
-      esp3d_log_e("Mutex not taken");
-      _is_connected = false;
-    }
+    // if (xSemaphoreTake(_device_disconnected_mutex, portMAX_DELAY) != pdTRUE) {
+    //   esp3d_log_e("Mutex not taken");
+    //   _is_connected = false;
+    // }
   } else {
     esp3d_log("USB device disconnected");
 #if defined(NOTIFICATION_FEATURE)
     notificationsservice.sendAutoNotification("USB Disconnected");
 #endif  // NOTIFICATION_FEATURE
-    xSemaphoreGive(_device_disconnected_mutex);
+    //xSemaphoreGive(_device_disconnected_mutex);
     _vcp_ptr = nullptr;
   }
 }
 
 void ESP3DUsbSerialService::receiveCb(const uint8_t *data, size_t data_len,
                                       void *arg) {
-  esp3d_log("receiveCb %d : %s", data_len, (const char *)data);
+  esp3d_log("receiveCb %d : %.*s", data_len, data_len, (const char *)data);
   if (!started()) {
     return;
   }
   if (xSemaphoreTake(_buffer_mutex, portMAX_DELAY) == pdTRUE) {
     for (size_t i = 0; i < data_len; i++) {
+      _recv_buffer[_recv_buffer_write++ % _recv_size] = data[i];
+      if (_is_muted) {
+        continue;
+      }
+
       if (esp3d_string::isRealTimeCommand(data[i])) {
         flushChar(data[i]);
       } else {
@@ -249,6 +256,12 @@ void ESP3DUsbSerialService::connectDevice() {
     uint16_t pid = esp_usb::getPID();
     esp3d_log("USB device with VID: 0x%04X (%s), PID: 0x%04X (%s) found\n", vid,
               esp_usb::getVIDString(), pid, esp_usb::getPIDString());
+
+    if (_vcp_ptr->set_control_line_state(true, true) != ESP_OK) {
+      esp3d_log_e("Failed to set control line state");
+      return;
+    }
+
     setConnected(true);
   } else {
     esp3d_log_e("USB device not identified");
@@ -439,31 +452,65 @@ size_t ESP3DUsbSerialService::writeBytes(const uint8_t *buffer, size_t size) {
     esp3d_log_e("USB Serial not started or not connected");
     return 0;
   }
-  esp3d_log("writeBytes %d : %s", size, (const char *)buffer);
-  if (_vcp_ptr && _vcp_ptr->tx_blocking((uint8_t *)buffer, size) == ESP_OK) {
-    if (!(_vcp_ptr && _vcp_ptr->set_control_line_state(true, true) == ESP_OK)) {
-      esp3d_log_e("Failed to set control line state");
-      return 0;
 
+  if (!_vcp_ptr) {
+    esp3d_log_e("_vcp_ptr is null");
+    return 0;
+  }
+
+  if (size <= 0) {
+    esp3d_log_e("writeBytes size invalid");
+    return 0;
+  }
+
+  constexpr auto tx_buffer_size = ESP3D_USB_SERIAL_TX_BUFFER_SIZE;
+  const bool is_aligned = (size % tx_buffer_size) == 0;
+  const auto num_tx = size / tx_buffer_size + (is_aligned ? 0 : 1);
+
+  for (size_t i = 0; i < num_tx; i++) {
+    size_t tx_size = tx_buffer_size;
+
+    if (i == num_tx - 1 && !is_aligned) {
+      tx_size = size % tx_buffer_size;
+    }
+
+    const char* bulk_char = (const char *)buffer + i * tx_buffer_size;
+    esp3d_log("writeBytes [%d/%d]: '%.*s'", (i + 1), num_tx, tx_size, bulk_char);
+
+    auto ret = _vcp_ptr->tx_blocking((uint8_t*)bulk_char, tx_size);
+    if (ret != ESP_OK) {
+      esp3d_log_e("tx_blocking failed: 0x%X", ret);
       esp3d_log_e("Failed to send message");
       return 0;
     }
-    return size;
   }
-  if (!_vcp_ptr) {
-    esp3d_log_e("_vcp_ptr is null");
-  } else {
-    esp3d_log_e("tx_blocking failed");
-  }
-  esp3d_log_e("Failed to send message");
-  return 0;
+
+  return size;
 }
 
 size_t ESP3DUsbSerialService::readBytes(uint8_t *sbuf, size_t len) {
-  if (!_started) {
-    return -1;
+   if (!_started || !_is_connected) {
+    esp3d_log_e("USB Serial not started or not connected");
+    return 0;
   }
-  // return Serials[_serialIndex]->readBytes(sbuf, len);
+
+  if (_recv_buffer_read >=_recv_buffer_write) {
+    return 0;
+  }
+
+  // Do not read from very old data in the buffer
+  _recv_buffer_read = max((int)_recv_buffer_read, (int)_recv_buffer_write - (int)_recv_size);
+
+  if (xSemaphoreTake(_buffer_mutex, pdMS_TO_TICKS(0)) == pdTRUE) {
+    size_t i = 0;
+    while (_recv_buffer_read < _recv_buffer_write && i < len) {
+      sbuf[i++] = _recv_buffer[_recv_buffer_read++ % _recv_size];
+    }
+
+    xSemaphoreGive(_buffer_mutex);
+    return i;
+  }
+
   return 0;
 }
 

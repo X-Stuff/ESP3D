@@ -64,17 +64,19 @@
  */
 #define COMMUNICATION_PROTOCOL RAW_SERIAL
 
-/* Main Serial port / Ouptut 
+/* Main Serial port / Ouptut
  * which serial ESP use to communicate to printer (ESP32 has 3 serials
  * available, ESP8266 only 2) USE_SERIAL_0 //for ESP8266/32, also used by
  * bootloader output, so consider to make it quiet USE_SERIAL_1 //for ESP8266/32
  * USE_SERIAL_2 //for ESP32 Only
  */
 // Main serial port
+#ifndef ESP_SERIAL_OUTPUT
 #define ESP_SERIAL_OUTPUT USE_SERIAL_0
+#endif
 
 
-/* Optional Output 
+/* Optional Output
  * Instead of Serial, you can use USB Serial
  * USB_SERIAL_FEATURE on ESP32  S2/S3 Only
  */
@@ -531,7 +533,7 @@
  * CAMERA_MODEL_ESP32S2_CAM_BOARD
  * CAMERA_MODEL_ESP32S3_CAM_LCD
  * CAMERA_MODEL_ESP32S3_EYE
- * CAMERA_MODEL_XIAO_ESP32S3  
+ * CAMERA_MODEL_XIAO_ESP32S3
  * Camera connected to ESP board, only ones with PSRAM are supported
  */
 // #define CAMERA_DEVICE CAMERA_MODEL_XIAO_ESP32S3

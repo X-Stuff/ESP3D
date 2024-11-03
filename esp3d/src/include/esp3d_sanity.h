@@ -89,12 +89,6 @@
 #endif
 
 
-
-#if  ESP_SERIAL_OUTPUT == USE_USB_SERIAL && !defined(USB_SERIAL_FEATURE)
-#error USB_SERIAL_FEATURE is necessary for ESP_SERIAL_OUTPUT == USE_USB_SERIAL
-#endif  
-
-
 /**************************
  * Bluetooth
  * ***********************/

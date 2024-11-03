@@ -76,7 +76,7 @@
 
 /* Optional Output 
  * Instead of Serial, you can use USB Serial
- * USE_USB_SERIAL //for ESP32  S2/S3 Only
+ * USB_SERIAL_FEATURE on ESP32  S2/S3 Only
  */
 //#define USB_SERIAL_FEATURE
 

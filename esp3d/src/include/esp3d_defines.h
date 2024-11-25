@@ -188,7 +188,7 @@ typedef uint ESP3DSettingIndex;
 
 // SD connection
 #define ESP_NO_SD 0
-#define ESP_DIRECT_SD 1
+#define ESP_NOT_SHARED_SD 1
 #define ESP_SHARED_SD 2
 
 // SD Device type

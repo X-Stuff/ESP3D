@@ -707,7 +707,7 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
 #endif  // NOTIFICATION_FEATURE
 #if defined(SD_DEVICE)
   // SD enabled
-  tmpstr = (ESP3DSettings::GetSDDevice() == ESP_DIRECT_SD)   ? "direct "
+  tmpstr = (ESP3DSettings::GetSDDevice() == ESP_NOT_SHARED_SD)   ? "direct "
            : (ESP3DSettings::GetSDDevice() == ESP_SHARED_SD) ? "shared "
                                                              : "none ";
   tmpstr += "(";

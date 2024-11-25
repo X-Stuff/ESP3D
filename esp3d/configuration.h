@@ -137,22 +137,31 @@
 // TYPE_ETH_PHY_KSZ8041
 // TYPE_ETH_PHY_KSZ8081
 // TYPE_ETH_PHY_W5500
-#define ESP3D_ETH_PHY_TYPE TYPE_ETH_PHY_LAN8720
+//#define ESP3D_ETH_PHY_TYPE TYPE_ETH_PHY_W5500
 
 // Ethernet board Clock mode
 //  MODE_ETH_CLOCK_GPIO0_IN
 //  MODE_ETH_CLOCK_GPIO0_OUT
 //  MODE_ETH_CLOCK_GPIO16_OUT
 //  MODE_ETH_CLOCK_GPIO17_OUT
-#define ESP3D_ETH_CLK_MODE MODE_ETH_CLOCK_GPIO0_IN
+//#define ESP3D_ETH_CLK_MODE MODE_ETH_CLOCK_GPIO0_IN
 
 // Pins of ethernet board
-#define ESP3D_ETH_PHY_POWER_PIN 16
-#define ESP3D_ETH_PHY_MDC_PIN 23
-#define ESP3D_ETH_PHY_MDIO_PIN 18
+//#define ESP3D_ETH_PHY_POWER_PIN 16
+//#define ESP3D_ETH_PHY_MDC_PIN 23
+//#define ESP3D_ETH_PHY_MDIO_PIN 18
+// These are the pins for the W5500 chip using SPI
+#define ETHERNET_SPI_USE_SPI 1
+#define ETHERNET_SPI_USE_SPI2 0
+#define ETH_SPI_SCK  8
+#define ETH_SPI_MISO 23
+#define ETH_SPI_MOSI 19
+#define ETH_PHY_CS 5
+#define ETH_PHY_IRQ 33
+#define ETH_PHY_RST 4
 
 // Address of ethernet board
-#define ESP3D_ETH_PHY_ADDR 1
+#define ESP3D_ETH_PHY_ADDR 0
 
 /* Use Bluetooth
  * Enable serial bluetooth communications
@@ -287,11 +296,11 @@
 
 /* SD card connection
  * ESP_NO_SD //(default)
- * ESP_DIRECT_SD //Only your ESP board is connected to SDCard
+ * ESP_NOT_SHARED_SD //Only your ESP board is connected to SDCard
  * ESP_SHARED_SD //Printer SD Card is also connected to ESP3D
  * Does your system has SD card and how it is connected to your ESP3D
  */
- //#define SD_DEVICE_CONNECTION ESP_DIRECT_SD
+ //#define SD_DEVICE_CONNECTION ESP_NOT_SHARED_SD
 
 /* SD card library
  * ESP_SD_NATIVE //esp32 / esp8266
@@ -443,7 +452,7 @@
  * TFT_SPI_ST7789_240X240
  * TFT_SPI_ST7789_135X240
  */
-// #define DISPLAY_DEVICE OLED_I2C_SSD1306_128X64
+ //#define DISPLAY_DEVICE OLED_I2C_SSD1306_128X64
 
 /* Flip screen
  * Flip/rotate screen
@@ -453,7 +462,9 @@
 /* Display i2C address
  * Wire address of display
  */
-// #define DISPLAY_I2C_ADDR 0x3c
+ #define DISPLAY_I2C_ADDR 0x3c
+ //#define ESP_SDA_PIN 21
+ //#define ESP_SCL_PIN 22
 
 /* Display reset pin
  * The pin used to reset the screen (optional)

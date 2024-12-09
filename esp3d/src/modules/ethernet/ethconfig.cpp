@@ -113,12 +113,11 @@ bool EthConfig::begin(int8_t& espMode) {
   esp3d_log("ETH spi PHY Type %d", ESP3D_ETH_PHY_TYPE);
   ETH_SPI.begin(ETH_SPI_SCK, ETH_SPI_MISO, ETH_SPI_MOSI);
   _started = ETH.begin(ETH_PHY_W5500, ESP3D_ETH_PHY_ADDR, ETH_PHY_CS,
-                       ETH_PHY_IRQ, ETH_PHY_RST, ETH_SPI);
-                       
-  
+                       ETH_PHY_IRQ, ETH_PHY_RST, ETH_SPI);                
 #endif  // ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_W5500
 
   if (_started) {
+    esp3d_log("Starting ethernet success");
     if (ESP3DSettings::isVerboseBoot()) {
       esp3d_commands.dispatch("Starting ethernet", ESP3DClientType::all_clients,
                               no_id, ESP3DMessageType::unique,
@@ -131,31 +130,37 @@ bool EthConfig::begin(int8_t& espMode) {
                             ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,
                             ESP3DAuthenticationLevel::admin);
+    esp3d_log("Failed starting ethernet failed");
+    return false;
   }
   ETH.setHostname(NetConfig::hostname(true));
-
   // DHCP is only for Client
   if (espMode == ESP_ETH_STA) {
     if (!StartSTA()) {
       if (ESP3DSettings::isVerboseBoot()) {
+        esp3d_log("Starting fallback mode");
         esp3d_commands.dispatch(
             "Starting fallback mode", ESP3DClientType::all_clients, no_id,
             ESP3DMessageType::unique, ESP3DClientType::system,
             ESP3DAuthenticationLevel::admin);
       }
       espMode = ESP3DSettings::readByte(ESP_ETH_STA_FALLBACK_MODE);
-      res = true;
+      res = false;
+      return res;
     } else {
+      esp3d_log("Client started");
       if (ESP3DSettings::isVerboseBoot()) {
         esp3d_commands.dispatch("Client started", ESP3DClientType::all_clients,
                                 no_id, ESP3DMessageType::unique,
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
       }
+      res = true;
     }
   }
   // Static IP or DHCP client ?
   if ((ESP3DSettings::readByte(ESP_ETH_STA_IP_MODE) != DHCP_MODE)) {
+    esp3d_log("Show IP");
     esp3d_commands.dispatch(ETH.localIP().toString().c_str(),
                             ESP3DClientType::all_clients, no_id,
                             ESP3DMessageType::unique, ESP3DClientType::system,

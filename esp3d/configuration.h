@@ -126,7 +126,7 @@
 /* Use Ethernet
  * Enable ethernet communications
  */
-#define ETH_FEATURE
+// #define ETH_FEATURE
 
 // Ethernet type (Check ETH.h eth_phy_type_t)
 // TYPE_ETH_PHY_LAN8720
@@ -644,9 +644,9 @@
 // LOG_OUTPUT_SERIAL2
 // LOG_OUTPUT_TELNET
 // LOG_OUTPUT_WEBSOCKET
- #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
+// #define ESP_LOG_FEATURE LOG_OUTPUT_SERIAL0
 
- #define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
+// #define ESP3D_DEBUG_LEVEL LOG_LEVEL_DEBUG
 
 #ifdef ESP_LOG_FEATURE
 #define LOG_ESP3D_BAUDRATE 115200
@@ -657,7 +657,7 @@
 // #define ESP_BENCHMARK_FEATURE
 
 // Disable sanity check at compilation
- #define ESP_NO_SANITY_CHECK
+// #define ESP_NO_SANITY_CHECK
 
 /************************************
  *

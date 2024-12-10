@@ -6,7 +6,7 @@ shopt -s globstar
 ls $HOME
 # Make sure we are inside the github workspace
 cd $GITHUB_WORKSPACE
-cp -r ./libraries/ESP32SSDP-2.0.2 $HOME/arduino_ide/libraries/
+cp -r ./libraries/ESP32SSDP-2.0.3 $HOME/arduino_ide/libraries/
 cp -r ./libraries/arduinoWebSockets-2.6.1 $HOME/arduino_ide/libraries/
 cp -r ./libraries/DHT_sensor_library_for_ESPx-1.0.6 $HOME/arduino_ide/libraries/
 cp -r ./libraries/esp8266-oled-ssd1306-4.3.0 $HOME/arduino_ide/libraries/

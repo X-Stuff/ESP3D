@@ -35,7 +35,7 @@
 #endif  // ETHERNET_SPI_USE_SPI
 #if ETHERNET_SPI_USE_SPI2
 #define ETH_SPI SPI2
-#endif  // ETHERNET_SPI_USE_SPI2  
+#endif  // ETHERNET_SPI_USE_SPI2
 #ifndef ETH_SPI
 #define ETH_SPI SPI
 #endif  // ETH_SPI
@@ -102,9 +102,9 @@ bool EthConfig::begin(int8_t& espMode) {
     phytype = ETH_PHY_KSZ8081;
   }
   esp3d_log("ETH PHY Type %d", phytype);
-  _started = ETH.begin(phytype, ESP3D_ETH_PHY_ADDR,
-                       ESP3D_ETH_PHY_POWER_PIN, ESP3D_ETH_PHY_MDC_PIN,
-                       ESP3D_ETH_PHY_MDIO_PIN, ESP3D_ETH_CLK_MODE_PIN);
+  _started = ETH.begin(phytype, ESP3D_ETH_PHY_ADDR, ESP3D_ETH_PHY_POWER_PIN,
+                       ESP3D_ETH_PHY_MDC_PIN, ESP3D_ETH_PHY_MDIO_PIN,
+                       ESP3D_ETH_CLK_MODE_PIN);
 #endif  // ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_TLK110 || ESP3D_ETH_PHY_TYPE ==
         // TYPE_ETH_PHY_RTL8201 || ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_DP83848 ||
         // ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_KSZ8041 || ESP3D_ETH_PHY_TYPE ==
@@ -113,7 +113,7 @@ bool EthConfig::begin(int8_t& espMode) {
   esp3d_log("ETH spi PHY Type %d", ESP3D_ETH_PHY_TYPE);
   ETH_SPI.begin(ETH_SPI_SCK, ETH_SPI_MISO, ETH_SPI_MOSI);
   _started = ETH.begin(ETH_PHY_W5500, ESP3D_ETH_PHY_ADDR, ETH_PHY_CS,
-                       ETH_PHY_IRQ, ETH_PHY_RST, ETH_SPI);                
+                       ETH_PHY_IRQ, ETH_PHY_RST, ETH_SPI);
 #endif  // ESP3D_ETH_PHY_TYPE == TYPE_ETH_PHY_W5500
 
   if (_started) {
@@ -155,16 +155,34 @@ bool EthConfig::begin(int8_t& espMode) {
                                 ESP3DClientType::system,
                                 ESP3DAuthenticationLevel::admin);
       }
+
       res = true;
     }
   }
-  // Static IP or DHCP client ?
-  if ((ESP3DSettings::readByte(ESP_ETH_STA_IP_MODE) != DHCP_MODE)) {
-    esp3d_log("Show IP");
-    esp3d_commands.dispatch(ETH.localIP().toString().c_str(),
-                            ESP3DClientType::all_clients, no_id,
-                            ESP3DMessageType::unique, ESP3DClientType::system,
-                            ESP3DAuthenticationLevel::admin);
+  if (res) {
+    // Static IP or DHCP client ?
+    if ((ESP3DSettings::readByte(ESP_ETH_STA_IP_MODE) == DHCP_MODE)) {
+      uint64_t start = millis();
+      String ip = ETH.localIP().toString();
+      esp3d_log("IP");
+      esp3d_log("Waiting for IP");
+      while (millis() - start < 10000 && ip == "0.0.0.0") {
+        ip = ETH.localIP().toString();
+        ESP3DHal::wait(100);
+      }
+      if (ip != "0.0.0.0") {
+        esp3d_log("Show IP");
+        esp3d_commands.dispatch(
+            ETH.localIP().toString().c_str(), ESP3DClientType::all_clients,
+            no_id, ESP3DMessageType::unique, ESP3DClientType::system,
+            ESP3DAuthenticationLevel::admin);
+      } else {
+        esp3d_log_e("Failed to get IP");
+        res = false;
+      }
+    }
+  } else {
+    esp3d_log_e("Failed starting ethernet");
   }
 
   return res;

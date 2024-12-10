@@ -126,7 +126,7 @@
 /* Use Ethernet
  * Enable ethernet communications
  */
-//#define ETH_FEATURE
+#define ETH_FEATURE
 
 // Ethernet type (Check ETH.h eth_phy_type_t)
 // TYPE_ETH_PHY_LAN8720
@@ -137,7 +137,7 @@
 // TYPE_ETH_PHY_KSZ8041
 // TYPE_ETH_PHY_KSZ8081
 // TYPE_ETH_PHY_W5500
-//#define ESP3D_ETH_PHY_TYPE TYPE_ETH_PHY_W5500
+#define ESP3D_ETH_PHY_TYPE TYPE_ETH_PHY_W5500
 
 // Ethernet board Clock mode
 //  MODE_ETH_CLOCK_GPIO0_IN
@@ -153,15 +153,15 @@
 // These are the pins for the W5500 chip using SPI
 #define ETHERNET_SPI_USE_SPI 1
 #define ETHERNET_SPI_USE_SPI2 0
-#define ETH_SPI_SCK  8
+#define ETH_SPI_SCK  18
 #define ETH_SPI_MISO 23
 #define ETH_SPI_MOSI 19
 #define ETH_PHY_CS 5
-#define ETH_PHY_IRQ 33
+#define ETH_PHY_IRQ -1
 #define ETH_PHY_RST 4
 
 // Address of ethernet board
-#define ESP3D_ETH_PHY_ADDR 0
+#define ESP3D_ETH_PHY_ADDR 1
 
 /* Use Bluetooth
  * Enable serial bluetooth communications
@@ -372,7 +372,7 @@
 /* Enable global filesystem
  * Allows to access to all filesystems from same location
  */
-#define GLOBAL_FILESYSTEM_FEATURE
+//#define GLOBAL_FILESYSTEM_FEATURE
 
 /* WebDav access
  * Use WebDav to access to your filesystem
@@ -380,7 +380,7 @@
  * FS_FLASH       //mount Flash FS
  * FS_SD          mount SD FS
  */
-#define WEBDAV_FEATURE FS_ROOT
+//#define WEBDAV_FEATURE FS_ROOT
 
 /* FTP access
  * Use FTP to access to your filesystem (1 connection only)
@@ -463,8 +463,8 @@
  * Wire address of display
  */
  #define DISPLAY_I2C_ADDR 0x3c
- //#define ESP_SDA_PIN 21
- //#define ESP_SCL_PIN 22
+ #define ESP_SDA_PIN 21
+ #define ESP_SCL_PIN 22
 
 /* Display reset pin
  * The pin used to reset the screen (optional)

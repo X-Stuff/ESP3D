@@ -46,33 +46,33 @@ void HTTP_Server::handle_web_command() {
   bool isRealTimeCommand = false;
   if (_webserver->hasArg("cmd")) {
     cmd = _webserver->arg("cmd");
-    esp3d_log_d("Command is %s", cmd.c_str());
+    esp3d_log("Command is %s", cmd.c_str());
     if (!cmd.endsWith("\n")) {
-      esp3d_log_d("Command is not ending with \\n");
+      esp3d_log("Command is not ending with \\n");
       if (ESP3DSettings::GetFirmwareTarget() == GRBL || ESP3DSettings::GetFirmwareTarget() == GRBLHAL) {
         uint len = cmd.length();
         if (!((len == 1 && esp3d_string::isRealTimeCommand(cmd[0])) ||
               (len == 2 && esp3d_string::isRealTimeCommand(cmd[1])))) {
           cmd += "\n";
-          esp3d_log_d("Command is not realtime, adding \\n");
+          esp3d_log("Command is not realtime, adding \\n");
         } else {  // no need \n for realtime command
-          esp3d_log_d("Command is realtime, no need to add \\n");
+          esp3d_log("Command is realtime, no need to add \\n");
           isRealTimeCommand = true;
           // remove the 0XC2 that should not be there
           if (len == 2 && esp3d_string::isRealTimeCommand(cmd[1]) && cmd[1] == 0xC2) {
             cmd[0] = cmd[1];
             cmd[1] = 0x0;
-            esp3d_log_d("Command is realtime, removing 0xC2");
+            esp3d_log("Command is realtime, removing 0xC2");
           }
         }
       } else {
-        esp3d_log_d("Command is not realtime, adding \\n");
+        esp3d_log("Command is not realtime, adding \\n");
         cmd += "\n";  // need to validate command
       }
     } else {
-      esp3d_log_d("Command is ending with \\n");
+      esp3d_log("Command is ending with \\n");
     }
-    esp3d_log_d("Message type is %s for %s", isRealTimeCommand ? "realtimecmd" : "unique", cmd.c_str());
+    esp3d_log("Message type is %s for %s", isRealTimeCommand ? "realtimecmd" : "unique", cmd.c_str());
     if (esp3d_commands.is_esp_command((uint8_t *)cmd.c_str(), cmd.length())) {
       ESP3DMessage *msg = esp3d_message_manager.newMsg(
           ESP3DClientType::http, esp3d_commands.getOutputClient(),

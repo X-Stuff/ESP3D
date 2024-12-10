@@ -81,6 +81,12 @@
 #if defined(AUTHENTICATION_FEATURE)
 #include "../../modules/authentication/authentication_service.h"
 #endif  // AUTHENTICATION_FEATURE
+#if defined(SSDP_FEATURE)
+#include <ESP32SSDP.h>
+#endif  // SSDP_FEATURE
+#if defined(MDNS_FEATURE)
+#include "../../modules/mDNS/mDNS.h"
+#endif  // MDNS_FEATURE
 
 #if defined(USB_SERIAL_FEATURE)
 #include "../../modules/usb-serial/usb_serial_service.h"
@@ -304,6 +310,21 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
                        false)) {
     return;
   }
+  #if defined (SSDP_FEATURE)
+  // SSDP enabled
+  tmpstr = SSDP.started() ? "ON (" + String(SSDP.localIP().toString()) + ")" : "OFF";
+  if (!dispatchIdValue(json, "SSDP", tmpstr.c_str(), target, requestId, false)) {
+    return;
+  }
+  #endif  // SSDP_FEATURE
+
+  #if defined (MDNS_FEATURE)
+  // MDNS enabled
+  tmpstr = esp3d_mDNS.started() ? "ON" : "OFF";
+  if (!dispatchIdValue(json, "MDNS", tmpstr.c_str(), target, requestId, false)) {
+    return;
+  }
+  #endif  // MDNS_FEATURE
 
 #if defined(HTTP_FEATURE)
   if (HTTP_Server::started()) {

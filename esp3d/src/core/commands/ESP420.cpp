@@ -81,7 +81,7 @@
 #if defined(AUTHENTICATION_FEATURE)
 #include "../../modules/authentication/authentication_service.h"
 #endif  // AUTHENTICATION_FEATURE
-#if defined(SSDP_FEATURE)
+#if defined(SSDP_FEATURE) && defined(ARDUINO_ARCH_ESP32)
 #include <ESP32SSDP.h>
 #endif  // SSDP_FEATURE
 #if defined(MDNS_FEATURE)
@@ -312,7 +312,12 @@ void ESP3DCommands::ESP420(int cmd_params_pos, ESP3DMessage* msg) {
   }
   #if defined (SSDP_FEATURE)
   // SSDP enabled
+  #if defined(ARDUINO_ARCH_ESP32)
   tmpstr = SSDP.started() ? "ON (" + String(SSDP.localIP().toString()) + ")" : "OFF";
+  #endif  // ARDUINO_ARCH_ESP32
+  #if defined(ARDUINO_ARCH_ESP8266)
+  tmpstr =  "ON" ;
+  #endif  // ARDUINO_ARCH_ESP8266
   if (!dispatchIdValue(json, "SSDP", tmpstr.c_str(), target, requestId, false)) {
     return;
   }
